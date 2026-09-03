@@ -66,48 +66,54 @@ SYMBOL_META = {
 OUTFIT_LIBRARY = {
     "girls": [
         {
-            "id": "girl-summer", "image": "girl_summer.jpg",
-            "title": "爽やか半袖コーデ",
-            "description": "半袖シャツで涼しく、清潔感のある定番スタイル。",
-            "tags": ["半袖シャツ", "リボン", "夏スカート"],
-            "temp": "26°C以上", "rating": "4.9", "kind": "summer",
+            "id": "girl-summer",
+            "image": "girl_summer.jpg",
+            "title": "半袖シャツ × 夏スカート",
+            "description": "暑い日は、涼しく動きやすい夏制服がおすすめ。",
+            "tags": ["半袖シャツ", "夏スカート", "リボン", "ローファー"],
+            "kind": "summer",
         },
         {
-            "id": "girl-vest", "image": "girl_vest.jpg",
-            "title": "ベストで調整コーデ",
-            "description": "朝晩の気温差や冷房に対応しやすい万能コーデ。",
-            "tags": ["長袖シャツ", "ベスト", "スカート"],
-            "temp": "20〜25°C", "rating": "4.8", "kind": "vest",
+            "id": "girl-vest",
+            "image": "girl_vest.jpg",
+            "title": "長袖シャツ × ニットベスト",
+            "description": "朝晩の気温差に対応しやすい、過ごしやすい定番コーデ。",
+            "tags": ["長袖シャツ", "ニットベスト", "スカート", "リボン"],
+            "kind": "vest",
         },
         {
-            "id": "girl-cardigan", "image": "girl_cardigan.jpg",
-            "title": "カーデで安心コーデ",
-            "description": "肌寒い日も柔らかく暖かく。脱ぎ着しやすいスタイル。",
-            "tags": ["長袖シャツ", "カーデ", "スカート"],
-            "temp": "19°C以下", "rating": "4.8", "kind": "blazer",
+            "id": "girl-cardigan",
+            "image": "girl_cardigan.jpg",
+            "title": "長袖シャツ × カーディガン",
+            "description": "肌寒い日は、上着を重ねて体温調整しやすく。",
+            "tags": ["長袖シャツ", "カーディガン", "スカート", "ローファー"],
+            "kind": "blazer",
         },
     ],
     "boys": [
         {
-            "id": "boy-summer", "image": "boy_summer.jpg",
-            "title": "爽やか半袖コーデ",
-            "description": "半袖シャツで清潔感のある爽やかコーデ。",
-            "tags": ["半袖シャツ", "夏スラックス", "ベルト"],
-            "temp": "26°C以上", "rating": "4.9", "kind": "summer",
+            "id": "boy-summer",
+            "image": "boy_summer.jpg",
+            "title": "半袖シャツ × 夏スラックス",
+            "description": "暑い日は、通気性のいい夏制服で涼しく快適に。",
+            "tags": ["半袖シャツ", "夏スラックス", "ベルト", "ローファー"],
+            "kind": "summer",
         },
         {
-            "id": "boy-vest", "image": "boy_vest.jpg",
-            "title": "ベストでスマート",
-            "description": "体温調整しながら、きちんと感も出せるスタイル。",
-            "tags": ["長袖シャツ", "ベスト", "ネクタイ"],
-            "temp": "20〜25°C", "rating": "4.8", "kind": "vest",
+            "id": "boy-vest",
+            "image": "boy_vest.jpg",
+            "title": "長袖シャツ × ニットベスト",
+            "description": "朝晩の気温差に合わせやすい、スマートな定番コーデ。",
+            "tags": ["長袖シャツ", "ニットベスト", "ネクタイ", "スラックス"],
+            "kind": "vest",
         },
         {
-            "id": "boy-blazer", "image": "boy_blazer.jpg",
-            "title": "ブレザーできちんと",
-            "description": "風や冷えを防ぎ、落ち着いた印象に仕上げる。",
-            "tags": ["長袖シャツ", "ブレザー", "ネクタイ"],
-            "temp": "19°C以下", "rating": "4.9", "kind": "blazer",
+            "id": "boy-blazer",
+            "image": "boy_blazer.jpg",
+            "title": "長袖シャツ × ブレザー",
+            "description": "気温が低い日は、ブレザーでしっかり防寒。",
+            "tags": ["長袖シャツ", "ブレザー", "ネクタイ", "スラックス"],
+            "kind": "blazer",
         },
     ],
 }
@@ -366,14 +372,11 @@ def day_advice(temp: float, rain_probability: int, wind_speed: float) -> list[st
     return rows
 
 
-def serialize_outfits(kind: str) -> dict[str, list[dict[str, Any]]]:
+def selected_outfits(kind: str) -> dict[str, dict[str, Any]]:
     result = {}
     for gender, rows in OUTFIT_LIBRARY.items():
-        result[gender] = []
-        for row in rows:
-            item = dict(row)
-            item["recommended"] = item["kind"] == kind
-            result[gender].append(item)
+        match = next((row for row in rows if row["kind"] == kind), rows[0])
+        result[gender] = dict(match)
     return result
 
 
@@ -424,7 +427,7 @@ def index():
     min_temp = round(float(daily["temperature_2m_min"][0]), 1)
 
     kind = outfit_kind(temp, rain_prob, wind)
-    outfits = serialize_outfits(kind)
+    outfits = selected_outfits(kind)
 
     week = []
     for i, date in enumerate(daily["time"][:7]):
