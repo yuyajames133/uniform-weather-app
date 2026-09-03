@@ -2,101 +2,402 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#ffffff">
+
   <title>今日の制服コーデ</title>
+
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+
+  <script
+    defer
+    src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js">
+  </script>
+
+  <script
+    defer
+    src="{{ url_for('static', filename='app.js') }}">
+  </script>
 </head>
+
 <body>
+
 <main class="phone">
+
+  <!-- =========================================================
+       ヘッダー
+  ========================================================== -->
   <header class="top">
-    <button class="icon-btn" type="button" aria-label="メニュー"><i data-lucide="menu"></i></button>
+
+    <button
+      class="icon-btn"
+      type="button"
+      aria-label="メニュー">
+      <i data-lucide="menu"></i>
+    </button>
+
     <div class="brand">
-      <span>👔</span>
+      <span class="brand-icon">👔</span>
       <strong>今日の制服コーデ</strong>
     </div>
-    <button class="icon-btn" type="button" aria-label="設定"><i data-lucide="settings"></i></button>
+
+    <button
+      class="icon-btn"
+      type="button"
+      aria-label="設定">
+      <i data-lucide="settings"></i>
+    </button>
+
   </header>
 
-  <form class="location-row" method="get" action="/">
+
+  <!-- =========================================================
+       地域
+  ========================================================== -->
+  <form
+    class="location-row"
+    method="get"
+    action="/">
+
     <i data-lucide="map-pin"></i>
-    <input name="city" value="{{ city_query }}" placeholder="{{ city_name }}" aria-label="地域">
-    <button type="submit"><i data-lucide="search"></i></button>
+
+    <input
+      name="city"
+      value="{{ city_query }}"
+      placeholder="{{ city_name }}"
+      aria-label="地域">
+
+    <button
+      type="submit"
+      aria-label="地域を検索">
+      <i data-lucide="search"></i>
+    </button>
+
   </form>
 
-  {% if notice %}<div class="notice">{{ notice }}</div>{% endif %}
 
+  <!-- =========================================================
+       通知
+  ========================================================== -->
+  {% if notice %}
+  <div class="notice">
+    {{ notice }}
+  </div>
+  {% endif %}
+
+
+  <!-- =========================================================
+       今日の天気
+  ========================================================== -->
   <section class="weather">
+
     <div class="weather-left">
-      <div class="weather-icon"><i data-lucide="{{ weather.icon }}"></i></div>
-      <div>
-        <small>現在の気温</small>
-        <div class="temperature">{{ weather.temp|round|int }}<span>.0°C</span></div>
-        <p>最高 {{ weather.max|round|int }}° / 最低 {{ weather.min|round|int }}°</p>
+
+      <div class="weather-icon">
+        <i data-lucide="{{ weather.icon }}"></i>
       </div>
+
+      <div class="weather-main">
+
+        <small>現在の気温</small>
+
+        <div class="temperature">
+          {{ weather.temp|round|int }}
+          <span>°C</span>
+        </div>
+
+        <p>
+          最高 {{ weather.max|round|int }}°
+          /
+          最低 {{ weather.min|round|int }}°
+        </p>
+
+      </div>
+
     </div>
+
+
     <div class="weather-right">
-      <div><span>降水確率</span><strong>{{ weather.rain_probability }}%</strong></div>
-      <div><span>湿度</span><strong>{{ weather.humidity }}%</strong></div>
+
+      <div class="weather-stat">
+
+        <i data-lucide="umbrella"></i>
+
+        <span>降水確率</span>
+
+        <strong>
+          {{ weather.rain_probability }}%
+        </strong>
+
+      </div>
+
+
+      <div class="weather-stat">
+
+        <i data-lucide="droplets"></i>
+
+        <span>湿度</span>
+
+        <strong>
+          {{ weather.humidity }}%
+        </strong>
+
+      </div>
+
     </div>
+
   </section>
 
+
+  <!-- =========================================================
+       おすすめタイトル
+  ========================================================== -->
   <div class="section-row">
-    <div>
-      <strong>おすすめコーデ</strong>
+
+    <div class="section-title">
+
+      <strong>
+        おすすめコーデ
+      </strong>
+
       <span>
-        {% if recommended_kind == "summer" %}気温26°C以上
-        {% elif recommended_kind == "vest" %}気温20〜25°C
-        {% else %}気温19°C以下{% endif %}
+        {% if recommended_kind == "summer" %}
+          気温26°C以上
+        {% elif recommended_kind == "vest" %}
+          気温20〜25°C
+        {% else %}
+          気温19°C以下
+        {% endif %}
       </span>
+
     </div>
-    <em>過ごしやすさを優先</em>
+
+    <em>
+      今日の気温に合わせて
+    </em>
+
   </div>
 
-  <section class="gender-tabs">
-    <button class="gender active" type="button" data-gender="boys">男子</button>
-    <button class="gender" type="button" data-gender="girls">女子</button>
+
+  <!-- =========================================================
+       男女切替
+  ========================================================== -->
+  <section
+    class="gender-tabs"
+    aria-label="制服タイプ切替">
+
+    <button
+      class="gender active"
+      type="button"
+      data-gender="boys">
+
+      男子
+
+    </button>
+
+    <button
+      class="gender"
+      type="button"
+      data-gender="girls">
+
+      女子
+
+    </button>
+
   </section>
 
+
+  <!-- =========================================================
+       コーデ一覧
+       服・全身写真を主役にする部分
+  ========================================================== -->
   <section class="looks">
-    {% for gender in ["boys","girls"] %}
-      <div class="look-grid {% if gender == 'boys' %}active{% endif %}" data-grid="{{ gender }}">
-        {% for item in outfits[gender] %}
-        <article class="look-card {% if item.recommended %}recommended{% endif %}">
-          <div class="photo">
-            <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.title }}">
-            {% if item.recommended %}<span class="best">BEST</span>{% endif %}
-            <button type="button" class="heart" aria-label="お気に入り"><i data-lucide="heart"></i></button>
-          </div>
-          <div class="copy">
-            <small>Style 0{{ loop.index }}</small>
-            <h2>{{ item.title }}</h2>
-            <p>#{{ item.tags[0] }}　#{{ item.tags[1] }}</p>
-          </div>
-        </article>
-        {% endfor %}
-      </div>
-    {% endfor %}
-  </section>
 
-  <section class="point">
-    <div class="point-icon"><i data-lucide="sparkles"></i></div>
-    <div>
-      <strong>コーデのポイント</strong>
-      <p>{{ advice[-1] if advice else "体感温度に合わせて脱ぎ着できる服装がおすすめ。" }}</p>
+    {% for gender in ["boys", "girls"] %}
+
+    <div
+      class="look-grid {% if gender == 'boys' %}active{% endif %}"
+      data-grid="{{ gender }}">
+
+
+      {% for item in outfits[gender] %}
+
+      <article
+        class="
+          look-card
+          {% if item.recommended %}
+            recommended
+          {% endif %}
+        ">
+
+
+        <!-- =============================================
+             コーデ画像
+        ============================================== -->
+        <div class="photo">
+
+          <img
+            src="{{ url_for(
+              'static',
+              filename='images/' + item.image
+            ) }}"
+            alt="{{ item.title }}">
+
+
+          {% if item.recommended %}
+
+          <span class="best">
+            BEST
+          </span>
+
+          {% endif %}
+
+
+          <button
+            type="button"
+            class="heart"
+            aria-label="お気に入り">
+
+            <i data-lucide="heart"></i>
+
+          </button>
+
+        </div>
+
+
+        <!-- =============================================
+             コーデ情報
+        ============================================== -->
+        <div class="copy">
+
+          <small>
+            Style 0{{ loop.index }}
+          </small>
+
+          <h2>
+            {{ item.title }}
+          </h2>
+
+          <p class="look-description">
+            {{ item.description }}
+          </p>
+
+          <div class="look-tags">
+
+            {% for tag in item.tags %}
+
+            <span>
+              {{ tag }}
+            </span>
+
+            {% endfor %}
+
+          </div>
+
+        </div>
+
+      </article>
+
+      {% endfor %}
+
     </div>
+
+    {% endfor %}
+
   </section>
 
+
+  <!-- =========================================================
+       今日のポイント
+  ========================================================== -->
+  <section class="point">
+
+    <div class="point-icon">
+      <i data-lucide="sparkles"></i>
+    </div>
+
+    <div>
+
+      <strong>
+        コーデのポイント
+      </strong>
+
+      <p>
+        {{
+          advice[-1]
+          if advice
+          else
+          "体感温度に合わせて脱ぎ着できる服装がおすすめ。"
+        }}
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================================
+       下部ナビ
+  ========================================================== -->
   <nav class="bottom-nav">
-    <button class="active" type="button"><i data-lucide="home"></i><span>今日のコーデ</span></button>
-    <button type="button"><i data-lucide="calendar-days"></i><span>週間予報</span></button>
-    <button type="button"><i data-lucide="heart"></i><span>お気に入り</span></button>
-    <button type="button"><i data-lucide="clipboard-check"></i><span>コーデ記録</span></button>
+
+    <button
+      class="active"
+      type="button">
+
+      <i data-lucide="home"></i>
+
+      <span>
+        今日のコーデ
+      </span>
+
+    </button>
+
+
+    <button type="button">
+
+      <i data-lucide="calendar-days"></i>
+
+      <span>
+        週間予報
+      </span>
+
+    </button>
+
+
+    <button type="button">
+
+      <i data-lucide="heart"></i>
+
+      <span>
+        お気に入り
+      </span>
+
+    </button>
+
+
+    <button type="button">
+
+      <i data-lucide="clipboard-check"></i>
+
+      <span>
+        コーデ記録
+      </span>
+
+    </button>
+
   </nav>
 
-  <div class="provider">{{ weather.provider }}</div>
+
+  <!-- =========================================================
+       天気データ提供元
+  ========================================================== -->
+  <div class="provider">
+    {{ weather.provider }}
+  </div>
+
+
 </main>
+
 </body>
 </html>
