@@ -1,31 +1,26 @@
-# 今日の制服コーデ v2
+# 今日の制服コーデ - Mobile Edition
 
-Open-Meteoの天気に連動して、女子・男子の高校制服コーデを提案するFlaskアプリです。
+完全スマホ専用版です。
 
-## Macで起動
+## 特徴
+- 430px以下を前提にしたスマホUI
+- 今日の天気をコンパクト表示
+- 男子 / 女子をワンタップ切替
+- 気温・雨・風から自動判定した「今日のBEST」だけを大きく表示
+- 実画像アセット使用
+- ほぼ1画面で今日必要な情報が完結
+- Open-Meteo API
+- Render Free Web Service対応
 
+## ローカル起動
 ```bash
-cd uniform_weather_app_v2
 python3 -m pip install -r requirements.txt
 python3 app.py
 ```
 
-ブラウザ:
-`http://127.0.0.1:5000`
-
-APIを使わずUIだけ確認:
-`http://127.0.0.1:5000/?demo=1`
-
 ## Render
-Build Command:
+Build:
 `pip install -r requirements.txt`
 
-Start Command:
+Start:
 `gunicorn app:app`
-
-## 使用
-- Open-Meteo Forecast API
-- Open-Meteo Geocoding API
-- Chart.js
-- Lucide Icons
-- ローカル同梱の制服ビジュアル画像

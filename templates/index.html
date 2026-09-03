@@ -2,198 +2,179 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f9fc">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7fb">
   <title>今日の制服コーデ</title>
-  <meta name="description" content="今日の天気に合わせて、高校制服のおすすめコーデを提案する天気連動Webアプリ。">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="preconnect" href="https://unpkg.com">
+  <meta name="description" content="今日の天気から制服コーデを提案するスマホ専用Webアプリ。">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script>
-    window.APP_DATA = {{ {"chart": chart, "outfits": outfits, "recommendedKind": recommended_kind}|tojson }};
-  </script>
   <script defer src="{{ url_for('static', filename='app.js') }}"></script>
 </head>
 <body>
-  <main class="page-shell">
-    <header class="app-header">
-      <form class="city-picker" method="get" action="/">
-        <i data-lucide="map-pin"></i>
-        <input type="text" name="city" value="{{ city_query }}" placeholder="{{ city_name }}" aria-label="地域名">
-        <button type="submit" aria-label="地域を変更"><i data-lucide="search"></i></button>
-      </form>
+<main class="app">
+  <header class="header">
+    <form class="location" method="get" action="/">
+      <i data-lucide="map-pin"></i>
+      <input name="city" value="{{ city_query }}" placeholder="{{ city_name }}" aria-label="地域名">
+      <button type="submit" aria-label="地域を検索"><i data-lucide="chevron-down"></i></button>
+    </form>
 
-      <div class="brand">
-        <span class="brand-icon">👔</span>
-        <div>
-          <h1>今日の制服コーデ</h1>
-          <p>天気に合わせて、今日いちばん快適な制服を提案します</p>
-        </div>
+    <div class="title">
+      <span class="uniform-icon">👔</span>
+      <div>
+        <h1>今日の制服コーデ</h1>
+        <p>天気に合わせて快適な制服を提案</p>
       </div>
-
-      <button class="header-fav js-tab" type="button" data-tab="favorites">
-        <i data-lucide="star"></i><span>お気に入り</span>
-      </button>
-    </header>
-
-    {% if notice %}<div class="notice">{{ notice }}</div>{% endif %}
-
-    <section class="weather-hero">
-      <div class="weather-photo">
-        <img src="{{ url_for('static', filename='images/weather_sky.jpg') }}" alt="空のイメージ">
-        <div class="weather-photo-overlay"></div>
-        <span class="weather-city"><i data-lucide="map-pin"></i>{{ city_name }}</span>
-      </div>
-
-      <div class="weather-primary">
-        <div class="weather-temp">{{ weather.temp|round|int }}<span>°C</span></div>
-        <div class="weather-condition">
-          <i data-lucide="{{ weather.icon }}"></i><strong>{{ weather.label }}</strong>
-        </div>
-        <p>最高 {{ weather.max|round|int }}°C　/　最低 {{ weather.min|round|int }}°C</p>
-        <p>体感 {{ weather.apparent|round|int }}°C</p>
-      </div>
-
-      <div class="weather-metrics">
-        <div class="metric"><i data-lucide="umbrella"></i><span>降水確率</span><strong>{{ weather.rain_probability }}%</strong></div>
-        <div class="metric"><i data-lucide="wind"></i><span>風速</span><strong>{{ weather.wind }} km/h</strong></div>
-        <div class="metric"><i data-lucide="droplets"></i><span>湿度</span><strong>{{ weather.humidity }}%</strong></div>
-      </div>
-
-      <div class="weather-footer">
-        <span>最終更新：{{ weather.updated }}</span>
-        <button type="button" id="refreshWeather"><i data-lucide="refresh-cw"></i> 更新</button>
-      </div>
-    </section>
-
-    <nav class="tabs">
-      <button class="tab active js-tab" type="button" data-tab="recommend"><i data-lucide="shirt"></i><span>おすすめ</span></button>
-      <button class="tab js-tab" type="button" data-tab="graph"><i data-lucide="chart-no-axes-combined"></i><span>気温グラフ</span></button>
-      <button class="tab js-tab" type="button" data-tab="week"><i data-lucide="calendar-days"></i><span>週間天気</span></button>
-      <button class="tab js-tab" type="button" data-tab="favorites"><i data-lucide="heart"></i><span>お気に入り</span></button>
-    </nav>
-
-    <section class="tab-panel active" data-panel="recommend">
-      {% for gender, label, kicker in [("girls","女子","GIRLS"),("boys","男子","BOYS")] %}
-      <section class="outfit-section outfit-section-{{ gender }}">
-        <div class="section-heading">
-          <div>
-            <p class="section-kicker {{ gender }}">{{ kicker }}</p>
-            <h2>{{ label }}のおすすめコーデ</h2>
-          </div>
-          <span>気温 {{ weather.temp|round|int }}°C のおすすめ</span>
-        </div>
-
-        <div class="cards-scroll">
-          {% for item in outfits[gender] %}
-          <article class="outfit-card {% if item.recommended %}is-recommended{% endif %}"
-            data-id="{{ item.id }}"
-            data-title="{{ item.title }}"
-            data-description="{{ item.description }}"
-            data-image="{{ url_for('static', filename='images/' + item.image) }}"
-            data-tags="{{ item.tags|join('・') }}"
-            data-temp="{{ item.temp }}"
-            tabindex="0">
-            <div class="card-photo">
-              <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.title }}">
-              {% if item.recommended %}
-                <span class="best-badge {% if gender == 'boys' %}best-badge-blue{% endif %}">今日のBEST</span>
-              {% endif %}
-              <button class="heart-button js-favorite" type="button" data-id="{{ item.id }}" aria-label="お気に入り">
-                <i data-lucide="heart"></i>
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="card-meta">
-                <span>{{ item.temp }}</span>
-                <span><i data-lucide="star"></i>{{ item.rating }}</span>
-              </div>
-              <h3>{{ item.title }}</h3>
-              <p>{{ item.description }}</p>
-              <div class="tags">{% for tag in item.tags %}<span>{{ tag }}</span>{% endfor %}</div>
-            </div>
-          </article>
-          {% endfor %}
-        </div>
-
-        <div class="gender-tip {{ gender }}-tip">
-          <strong>{{ label }}のポイント</strong>
-          <span>
-            {% if recommended_kind == "summer" %}
-              日中は半袖中心で快適。冷房や雨への備えに薄手の羽織りがあると安心です。
-            {% elif recommended_kind == "vest" %}
-              長袖＋ベストで温度調整。朝晩の気温差にも対応しやすい組み合わせです。
-            {% else %}
-              長袖と上着を重ねて冷えを防ぎ、登下校の風にも備えましょう。
-            {% endif %}
-          </span>
-        </div>
-      </section>
-      {% endfor %}
-
-      <section class="bottom-summary">
-        <div class="advice-block">
-          <i data-lucide="umbrella"></i>
-          <div><span>今日のアドバイス</span>{% for row in advice %}<p>{{ row }}</p>{% endfor %}</div>
-        </div>
-        <div class="tomorrow-block">
-          <i data-lucide="{{ week[1].icon }}"></i>
-          <div><span>明日の天気</span><strong>{{ week[1].max }}° / {{ week[1].min }}°</strong><p>{{ week[1].label }}・降水 {{ week[1].rain }}%</p></div>
-        </div>
-        <button type="button" class="save-best" id="saveRecommended"><i data-lucide="bookmark"></i>今日のBESTを保存</button>
-      </section>
-    </section>
-
-    <section class="tab-panel" data-panel="graph">
-      <div class="panel-card">
-        <div class="panel-title"><div><p class="section-kicker boys">TODAY</p><h2>今日の気温と降水確率</h2></div><span>次の12時間</span></div>
-        <div class="chart-wrap"><canvas id="weatherChart"></canvas></div>
-      </div>
-    </section>
-
-    <section class="tab-panel" data-panel="week">
-      <div class="panel-card">
-        <div class="panel-title"><div><p class="section-kicker boys">7 DAYS</p><h2>週間天気とコーデ目安</h2></div></div>
-        <div class="week-grid">
-          {% for day in week %}
-          <article class="week-card">
-            <span class="week-date">{{ day.date[5:]|replace("-", "/") }}</span>
-            <i data-lucide="{{ day.icon }}"></i>
-            <strong>{{ day.max }}°</strong><small>/ {{ day.min }}°</small>
-            <p>{{ day.label }}</p>
-            <span class="rain-chip">降水 {{ day.rain }}%</span>
-            <span class="outfit-chip">{% if day.kind == "summer" %}半袖中心{% elif day.kind == "vest" %}ベスト調整{% else %}上着推奨{% endif %}</span>
-          </article>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-
-    <section class="tab-panel" data-panel="favorites">
-      <div class="panel-card">
-        <div class="panel-title"><div><p class="section-kicker girls">SAVED</p><h2>お気に入りコーデ</h2></div></div>
-        <div id="favoritesGrid" class="favorites-grid"></div>
-        <div id="favoritesEmpty" class="empty-state">
-          <i data-lucide="heart"></i><strong>まだお気に入りはありません</strong><p>コーデカードの♡を押すと、ここに保存できます。</p>
-        </div>
-      </div>
-    </section>
-
-    <footer><span>Weather data: Open-Meteo</span><span>Visual assets: generated for this prototype</span></footer>
-  </main>
-
-  <dialog id="outfitDialog" class="outfit-dialog">
-    <button type="button" class="dialog-close" id="dialogClose"><i data-lucide="x"></i></button>
-    <img id="dialogImage" alt="">
-    <div class="dialog-content">
-      <span id="dialogTemp" class="dialog-temp"></span>
-      <h2 id="dialogTitle"></h2>
-      <p id="dialogDescription"></p>
-      <div id="dialogTags" class="tags"></div>
-      <button type="button" class="dialog-favorite" id="dialogFavorite"><i data-lucide="heart"></i> お気に入りに追加</button>
     </div>
-  </dialog>
+
+    <button class="favorite-top" type="button" id="favoriteTop" aria-label="お気に入り">
+      <i data-lucide="heart"></i>
+    </button>
+  </header>
+
+  {% if notice %}
+  <div class="notice">{{ notice }}</div>
+  {% endif %}
+
+  <section class="weather-card">
+    <div class="sky-side">
+      <img src="{{ url_for('static', filename='images/weather_sky.jpg') }}" alt="今日の空">
+      <div class="sky-overlay"></div>
+      <span class="city-chip"><i data-lucide="map-pin"></i>{{ city_name }}</span>
+    </div>
+
+    <div class="weather-center">
+      <div class="temperature">{{ weather.temp|round|int }}<span>°C</span></div>
+      <div class="condition">
+        <i data-lucide="{{ weather.icon }}"></i>
+        <strong>{{ weather.label }}</strong>
+      </div>
+      <p>最高 {{ weather.max|round|int }}° / 最低 {{ weather.min|round|int }}°</p>
+      <p>体感 {{ weather.apparent|round|int }}°</p>
+    </div>
+
+    <div class="weather-stats">
+      <div>
+        <i data-lucide="umbrella"></i>
+        <span>降水</span>
+        <strong>{{ weather.rain_probability }}%</strong>
+      </div>
+      <div>
+        <i data-lucide="wind"></i>
+        <span>風速</span>
+        <strong>{{ weather.wind }}</strong>
+      </div>
+      <div>
+        <i data-lucide="droplets"></i>
+        <span>湿度</span>
+        <strong>{{ weather.humidity }}%</strong>
+      </div>
+    </div>
+  </section>
+
+  <nav class="view-tabs">
+    <button class="view-tab active" type="button" data-view="coordinate">
+      <i data-lucide="shirt"></i><span>コーデ</span>
+    </button>
+    <button class="view-tab" type="button" data-view="forecast">
+      <i data-lucide="calendar-days"></i><span>週間</span>
+    </button>
+    <button class="view-tab" type="button" data-view="advice">
+      <i data-lucide="lightbulb"></i><span>ポイント</span>
+    </button>
+  </nav>
+
+  <section class="main-panel" id="coordinateView">
+    <div class="gender-row">
+      <div>
+        <span class="eyebrow" id="genderEyebrow">BOYS</span>
+        <h2 id="genderTitle">男子のおすすめコーデ</h2>
+      </div>
+
+      <div class="gender-switch">
+        <button class="gender-btn active" type="button" data-gender="boys">男子</button>
+        <button class="gender-btn" type="button" data-gender="girls">女子</button>
+      </div>
+    </div>
+
+    <div class="outfit-track">
+      {% for gender in ["boys", "girls"] %}
+        {% for item in outfits[gender] %}
+        <article
+          class="outfit-card {% if gender == 'boys' %}show-gender{% endif %} {% if item.recommended %}recommended{% endif %}"
+          data-gender="{{ gender }}"
+          data-id="{{ item.id }}"
+        >
+          <div class="photo">
+            <img src="{{ url_for('static', filename='images/' + item.image) }}" alt="{{ item.title }}">
+            {% if item.recommended %}
+              <span class="best">TODAY'S BEST</span>
+            {% endif %}
+            <button class="heart js-heart" type="button" data-id="{{ item.id }}" aria-label="お気に入り">
+              <i data-lucide="heart"></i>
+            </button>
+          </div>
+
+          <div class="card-copy">
+            <div class="card-meta">
+              <span>{{ item.temp }}</span>
+              <span><i data-lucide="star"></i>{{ item.rating }}</span>
+            </div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+            <div class="tags">
+              {% for tag in item.tags %}<span>{{ tag }}</span>{% endfor %}
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+    <div class="tip-bar">
+      <span class="tip-label" id="tipLabel">男子のポイント</span>
+      <p id="tipText">
+        {% if recommended_kind == "summer" %}
+          半袖中心で快適に。冷房対策に薄手のベストがあると安心。
+        {% elif recommended_kind == "vest" %}
+          長袖＋ベストで朝晩の気温差に対応しやすい日です。
+        {% else %}
+          ブレザーを重ねて、風や朝晩の冷えに備えるのがおすすめ。
+        {% endif %}
+      </p>
+    </div>
+  </section>
+
+  <section class="secondary-panel" id="forecastView" hidden>
+    <div class="section-head">
+      <span class="eyebrow blue">7 DAYS</span>
+      <h2>週間天気とコーデ目安</h2>
+    </div>
+    <div class="week-row">
+      {% for day in week %}
+      <article class="day">
+        <span>{{ day.date[5:]|replace("-", "/") }}</span>
+        <i data-lucide="{{ day.icon }}"></i>
+        <strong>{{ day.max }}°</strong>
+        <small>{{ day.min }}°</small>
+        <em>{% if day.kind == "summer" %}半袖{% elif day.kind == "vest" %}ベスト{% else %}上着{% endif %}</em>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="secondary-panel" id="adviceView" hidden>
+    <div class="section-head">
+      <span class="eyebrow blue">TODAY</span>
+      <h2>今日のポイント</h2>
+    </div>
+    <div class="advice-box">
+      <i data-lucide="{% if weather.rain_probability >= 60 %}umbrella{% else %}sparkles{% endif %}"></i>
+      <div>
+        {% for row in advice %}<p>{{ row }}</p>{% endfor %}
+      </div>
+    </div>
+  </section>
+</main>
 </body>
 </html>
