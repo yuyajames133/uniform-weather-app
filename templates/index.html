@@ -3,125 +3,121 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#f7fbff">
+  <meta name="theme-color" content="#ffffff">
   <title>今日の制服コーデ</title>
+
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script defer src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   <script defer src="{{ url_for('static', filename='app.js') }}"></script>
 </head>
-<body>
 
+<body>
 <main class="app">
 
-  <header class="header">
-    <div>
-      <span class="eyebrow">UNIFORM WEATHER</span>
+  <header class="top">
+    <div class="title">
+      <span class="tiny-title">UNIFORM WEATHER</span>
       <h1>今日の制服コーデ</h1>
     </div>
-
-    <form class="city-form" method="get" action="/">
-      <i data-lucide="map-pin"></i>
-      <input name="city" value="{{ city_query }}" placeholder="{{ city_name }}" aria-label="地域">
-      <button type="submit" aria-label="検索">
-        <i data-lucide="search"></i>
-      </button>
-    </form>
+    <span class="sparkle" aria-hidden="true">✦</span>
   </header>
 
   {% if notice %}
   <div class="notice">{{ notice }}</div>
   {% endif %}
 
-  <section class="weather-strip">
-    <div class="weather-place">
-      <strong>{{ city_name }}</strong>
+  <section class="weather-card">
+    <form class="location" method="get" action="/">
+      <i data-lucide="map-pin"></i>
+      <input
+        name="city"
+        value="{{ city_query }}"
+        placeholder="{{ city_name }}"
+        aria-label="地域">
+      <button type="submit" aria-label="地域を検索">
+        <i data-lucide="search"></i>
+      </button>
+    </form>
+
+    <div class="weather-value">
+      <i data-lucide="{{ weather.icon }}"></i>
+      <strong>{{ weather.temp|round|int }}°</strong>
       <span>{{ weather.label }}</span>
     </div>
 
-    <div class="weather-temp">
-      <i data-lucide="{{ weather.icon }}"></i>
-      <strong>{{ weather.temp|round|int }}°</strong>
-    </div>
-
-    <div class="weather-sub">
-      <span>降水 {{ weather.rain_probability }}%</span>
-      <span>最高 {{ weather.max|round|int }}° / 最低 {{ weather.min|round|int }}°</span>
+    <div class="weather-meta">
+      <span>降水 {{ weather.rain }}%</span>
+      <span>最高 {{ weather.high|round|int }}° / 最低 {{ weather.low|round|int }}°</span>
     </div>
   </section>
 
-  <section class="gender-switch" aria-label="制服タイプ">
+  <section class="gender-tabs" aria-label="制服タイプ">
     <button class="gender active" type="button" data-gender="boys">男子</button>
     <button class="gender" type="button" data-gender="girls">女子</button>
   </section>
 
-  <section class="recommendation">
-    <div class="recommend-heading">
-      <div>
-        <span class="recommend-label">TODAY'S UNIFORM</span>
-        <h2>今日のおすすめ</h2>
-      </div>
-
-      <span class="temp-badge">
-        {% if recommended_kind == "summer" %}
-          暑い日
-        {% elif recommended_kind == "vest" %}
-          過ごしやすい日
-        {% else %}
-          肌寒い日
-        {% endif %}
-      </span>
+  <section class="recommend-head">
+    <div>
+      <span class="kicker">TODAY'S PICK</span>
+      <h2>今日これ着よ。</h2>
     </div>
-
-    {% for gender in ["boys","girls"] %}
-    {% set item = outfits[gender] %}
-
-    <article
-      class="outfit-panel {% if gender == 'boys' %}active{% endif %}"
-      data-panel="{{ gender }}">
-
-      <div class="outfit-photo">
-        <img
-          src="{{ url_for('static', filename='images/' + item.image) }}"
-          alt="{{ item.title }}">
-      </div>
-
-      <div class="outfit-info">
-        <h3>{{ item.title }}</h3>
-        <p>{{ item.description }}</p>
-
-        <div class="item-tags">
-          {% for tag in item.tags %}
-          <span>{{ tag }}</span>
-          {% endfor %}
-        </div>
-      </div>
-
-    </article>
-    {% endfor %}
+    <span class="weather-chip">
+      {% if recommended_kind == "summer" %}
+        暑い日向け
+      {% elif recommended_kind == "vest" %}
+        気温差向け
+      {% else %}
+        肌寒い日向け
+      {% endif %}
+    </span>
   </section>
 
-  <section class="point-card">
+  {% for gender in ["boys","girls"] %}
+  {% set item = outfits[gender] %}
+
+  <article
+    class="outfit {% if gender == 'boys' %}active{% endif %}"
+    data-panel="{{ gender }}">
+
+    <div class="photo">
+      <img
+        src="{{ url_for('static', filename='images/' + item.image) }}"
+        alt="{{ item.title }}">
+    </div>
+
+    <section class="outfit-info">
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.description }}</p>
+
+      <div class="tags">
+        {% for item_name in item.items %}
+        <span>{{ item_name }}</span>
+        {% endfor %}
+      </div>
+    </section>
+  </article>
+
+  {% endfor %}
+
+  <section class="point">
     <div class="point-icon">
       <i data-lucide="sparkles"></i>
     </div>
     <div>
       <strong>今日のポイント</strong>
-      <p>
-        {{
-          advice[-1]
-          if advice
-          else
-          "体感温度に合わせて、脱ぎ着しやすい服装がおすすめです。"
-        }}
-      </p>
+      <p>{{ point }}</p>
     </div>
   </section>
 
+  <section class="concept">
+    <strong>選べる。でも迷わない。</strong>
+    <span>毎朝の制服選びを、もっと自分らしく、もっとラクに。</span>
+  </section>
+
   <footer>
-    天気データ: {{ weather.provider }}
+    Weather data: {{ weather.provider }}
   </footer>
 
 </main>
-
 </body>
 </html>

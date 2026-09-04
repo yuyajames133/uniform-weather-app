@@ -3,14 +3,46 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>天気取得中</title>
+  <title>UNIFORM WEATHER</title>
   <style>
-  body{margin:0;background:#f5f7fb;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;color:#17243a}
-  main{min-height:100dvh;display:grid;place-items:center;padding:24px}
-  section{width:min(100%,390px);background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:28px;text-align:center;box-shadow:0 15px 40px rgba(30,50,75,.08)}
-  h1{font-size:20px}p{font-size:13px;color:#6f7c8f;line-height:1.7}
-  a{display:block;margin-top:18px;padding:13px;border-radius:14px;background:#173f70;color:#fff;text-decoration:none;font-weight:800}
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100dvh;
+      display:grid;
+      place-items:center;
+      padding:20px;
+      background:#f3f6f9;
+      font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+      color:#18263b
+    }
+    section{
+      width:min(100%,390px);
+      padding:24px;
+      border-radius:20px;
+      background:#fff;
+      border:1px solid #e3e9ef;
+      text-align:center
+    }
+    h1{font-size:19px;margin:0 0 9px}
+    p{color:#667487;font-size:13px;line-height:1.6}
+    a{
+      display:block;
+      margin-top:15px;
+      padding:12px;
+      border-radius:12px;
+      background:#2f6fae;
+      color:#fff;
+      text-decoration:none;
+      font-weight:800
+    }
   </style>
 </head>
-<body><main><section><h1>天気データを再取得します</h1><p>{{ message }}</p><a href="/">再読み込み</a></section></main></body>
+<body>
+<section>
+  <h1>天気データを再取得します</h1>
+  <p>{{ message }}</p>
+  <a href="/">再読み込み</a>
+</section>
+</body>
 </html>
