@@ -90,7 +90,7 @@
       <p>{{ item.description }}</p>
 
       <div class="tags">
-        {% for item_name in item.items %}
+        {% for item_name in item['items'] %}
         <span>{{ item_name }}</span>
         {% endfor %}
       </div>
